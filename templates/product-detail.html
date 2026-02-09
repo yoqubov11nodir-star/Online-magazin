@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ product.title }} | Batafsil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .comment-card { border-radius: 10px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
+        .public-comment { border-left: 5px solid #0d6efd; background-color: #f8f9fa; }
+        .private-comment { border-left: 5px solid #ffc107; background-color: #fff9e6; }
+        .product-img { max-height: 400px; object-fit: contain; }
+        .comment-actions { font-size: 0.85rem; }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="row bg-white p-4 rounded shadow-sm mb-5">
+        <div class="col-md-6 text-center">
+            {% if product.main_image %}
+                <img src="{{ product.main_image.url }}" class="img-fluid product-img rounded">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                    <i class="fa-solid fa-image fa-4x text-muted"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h1 class="fw-bold">{{ product.title }}</h1>
+            <p class="text-muted">Kategoriya: {{ product.category.title }}</p>
+            <h3 class="text-success">${{ product.price }}</h3>
+            {% if product.discount_price %}
+                <p class="text-danger text-decoration-line-through">${{ product.discount_price }}</p>
+            {% endif %}
+            <hr>
+            <p><strong>Sotuvchi:</strong> {{ product.author.username }}</p>
+            <p><strong>Zaxirada:</strong> {{ product.stock }} ta</p>
+            
+            <div class="d-flex gap-2">
+                <a href="{% url 'shop-list' %}" class="btn btn-outline-secondary">Orqaga qaytish</a>
+                
+                {% if product.stock > 0 %}
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">
+                        <i class="fa-solid fa-cart-plus me-1"></i> Add to Cart
+                    </a>
+                {% else %}
+                    <button class="btn btn-secondary" disabled>Tugagan</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card p-4 shadow-sm">
+                <h4>Fikringizni qoldiring</h4>
+                <form action="{% url 'add_comment' product.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea name="comment_text" class="form-control" rows="3" placeholder="Izoh yozing..." required></textarea>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="is_private" id="is_private">
+                        <label class="form-check-label" for="is_private">
+                            Ushbu izohni faqat sotuvchi ko'rsin (Shaxsiy)
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Yuborish</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h4 class="mb-4">Izohlar</h4>
+            {% for comment in product.comments.all %}
+                
+                {% if comment.is_public or request.user == product.author or request.user == comment.user %}
+                    <div class="card comment-card {% if comment.is_public %}public-comment{% else %}private-comment{% endif %} p-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>
+                                    {% if not comment.is_public %}<i class="fa-solid fa-lock me-1 text-warning"></i>{% else %}<i class="fa-solid fa-user me-1"></i>{% endif %}
+                                    {{ comment.user.username }}
+                                    {% if not comment.is_public %}(Shaxsiy){% endif %}
+                                </strong>
+                                <br>
+                                <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                            </div>
+
+                            {% if request.user == comment.user %}
+                            <div class="comment-actions">
+                                <a href="{% url 'update_comment' comment.id %}" class="text-primary me-2 text-decoration-none">
+                                    <i class="fa-solid fa-pen-to-square"></i> Tahrirlash
+                                </a>
+                                <a href="{% url 'delete_comment' comment.id %}" class="text-danger text-decoration-none" onclick="return confirm('Ochirilsinmi?')">
+                                    <i class="fa-solid fa-trash"></i> O'chirish
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="mb-0 mt-2">{{ comment.text }}</p>
+                    </div>
+                {% endif %}
+
+            {% empty %}
+                <p class="text-center text-muted">Hali izohlar yo'q.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

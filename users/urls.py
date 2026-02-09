@@ -15,9 +15,11 @@ urlpatterns = [
     path('profile/delete/<int:id>/', views.product_delete, name='product_delete'),
     
     # Shop & Wishlist
+    path('wishlist/', views.WishListView.as_view(), name='wishlist'), # BU QATORNI QO'SHING
     path('shop-list/', views.ShopListView.as_view(), name='shop-list'),
     path('shop-cart/', views.ShopCartView.as_view(), name='shop-cart'),
-    path('wishlist/', views.WishListView.as_view(), name='wishlist'),
+    path('add-to-wishlist/<int:product_id>/', views.add_to_wishlist, name='add_to_wishlist'),
+    path('wishlist/remove/<int:item_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
 
     # Cart Actions 
     path('add-to-cart/<int:id>/', views.add_to_cart, name='add_to_cart'),
@@ -26,4 +28,14 @@ urlpatterns = [
     
     # Order
     path('checkout/', checkout, name='checkout'),
-]
+
+    path('product/<int:id>/', views.product_detail, name='product-detail'),
+    path('add-comment/<int:product_id>/', views.add_comment, name='add_comment'),
+    path('delete-comment/<int:comment_id>/', views.delete_comment, name='delete_comment'),
+    path('update-comment/<int:comment_id>/', views.update_comment, name='update_comment'),
+
+    path('chats/', views.chat_list, name='chat-list'),
+    path('chat/<int:user_id>/', views.chat_detail, name='chat-detail'),
+    path('send-message/', views.send_message, name='send-message'),
+
+]   

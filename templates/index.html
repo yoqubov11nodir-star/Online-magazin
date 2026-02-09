@@ -183,7 +183,6 @@
                     </li>
                 </ul>
                 <ul class="list">
-                    <li><i class="fa-light fa-comments"></i><a href="{% static 'contact.html' %}">Live Chat</a></li>
                     <li><i class="fa-light fa-user"></i><a href="{% url 'profile' %}">Profile</a></li>
                     </li>
                 </ul>
@@ -197,95 +196,67 @@
 
     <!-- Main Header Section start  -->
     <header class="header-1">
-        <div class="mega-menu-wrapper">
-            <div class="header-main">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-6 col-md-6 col-lg-10 col-xl-8 col-xxl-10">
-                            <div class="header-left">
-                                <div class="logo">
-                                    <a href="{% static 'index.html' %}" class="header-logo">
-                                        <img src="{% static 'img/logo/white-logo.svg' %}" alt="logo-img">
-                                    </a>
-                                </div>
-                                <div class="mean__menu-wrapper">
-                                    <div class="main-menu">
-                                        <nav id="mobile-menu">
-                                            <ul>
-                                                <li>
-                                                    <a href="{% static 'index.html' %}">
-                                                        Home
-                                                        <i class="fas fa-angle-down"></i>
-                                                    </a>
-                                                    <ul class="submenu">
-                                                        <li><a href="{% url 'home' %}">Home</a></li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <a href="{% static 'shop.html' %}">
-                                                        Shop
-                                                        <i class="fas fa-angle-down"></i>
-                                                    </a>
-                                                    <ul class="submenu">
-                                                        <li><a href="{% url 'shop-list' %}">Shop List</a></li>
-                                                        <!-- <li><a href="{% static 'shop-details.html' %}">Shop Details</a></li> -->
-                                                        <li><a href="{% url 'shop-cart' %}">Shop Cart</a></li>
-                                                        <li><a href="{% url 'wishlist' %}">Wishlist</a></li>
-                                                        <li><a href="{% url 'login' %}">Checkout</a></li>
-                                                    </ul>
-                                                </li>
-                                                
-                                               
-                                                </li>
-                                                <li>
-                                                    <a href="{% static 'contact.html' %}">Contact</a>
-                                                </li>
-                                            </ul>
-                                        </nav>
-                                    </div>
-                                </div>
+    <div class="mega-menu-wrapper">
+        <div class="header-main">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-6 col-md-6 col-lg-10 col-xl-9 col-xxl-10">
+                        <div class="header-left d-flex align-items-center">
+                            <div class="logo">
+                                <a href="/" class="header-logo">
+                                    <img src="{% static 'img/logo/white-logo.svg' %}" alt="logo-img">
+                                </a>
                             </div>
-                        </div>
-                        <div class="col-6 col-md-6 col-lg-2 col-xl-4 col-xxl-2">
-                            <div class="header-right">
-                                <div class="category-oneadjust gap-6 d-flex align-items-center">
-                                    <div class="icon">
-                                        <i class="fa-sharp fa-solid fa-grid-2"></i>
-                                    </div>
-                                    <select name="cate" class="category">
-                                        <option value="1">
-                                            Category
-                                        </option>
-                                        <option value="1">
-                                            Web Design
-                                        </option>
-                                        <option value="1">
-                                            Web Development
-                                        </option>
-                                        <option value="1">
-                                            Graphic Design
-                                        </option>
-                                        <option value="1">
-                                            Softwer Eng
-                                        </option>
-                                    </select>
-                                    <form action="#" class="search-toggle-box d-md-block">
-                                        <div class="input-area">
-                                            <input type="text" placeholder="Author">
-                                            <button class="cmn-btn">
-                                                <i class="far fa-search"></i>
+                            <div class="mean__menu-wrapper d-flex align-items-center">
+                                <div class="main-menu">
+                                    <nav id="mobile-menu">
+                                        <ul>
+                                            <li>
+                                                <a href="/">Home <i class="fas fa-angle-down"></i></a>
+                                                <ul class="submenu">
+                                                    <li><a href="{% url 'home' %}">Home</a></li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a href="{% url 'shop-list' %}">Shop <i class="fas fa-angle-down"></i></a>
+                                                <ul class="submenu">
+                                                    <li><a href="{% url 'shop-list' %}">Shop List</a></li>
+                                                    <li><a href="{% url 'shop-cart' %}">Shop Cart</a></li>
+                                                    <li><a href="{% url 'wishlist' %}">Wishlist</a></li>
+                                                    <li><a href="{% url 'checkout' %}">Checkout</a></li>
+
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+
+                                <div class="header-search-box d-none d-xl-block" style="margin-left: 40px;">
+                                    <form action="{% url 'shop-list' %}" method="GET">
+                                        <div style="display: flex; align-items: center; background: #f4f4f4; border-radius: 30px; padding: 5px 20px; width: 320px; border: 1px solid #eee;">
+                                            <input type="text" name="q" placeholder="Qidirish..." value="{{ request.GET.q|default:'' }}" 
+                                                   style="border: none; background: transparent; outline: none; width: 100%; font-size: 14px; color: #333;">
+                                            <button type="submit" style="border: none; background: transparent; cursor: pointer;">
+                                                <i class="far fa-search" style="color: #666;"></i>
                                             </button>
                                         </div>
                                     </form>
                                 </div>
-                                <div class="menu-cart">
-                                    <a href="{% url 'wishlist' %}" class="cart-icon">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6 col-lg-2 col-xl-3 col-xxl-2">
+                        <div class="header-right">
+                            <div class="category-oneadjust gap-6 d-flex align-items-center justify-content-end">
+                                <div class="menu-cart d-flex align-items-center">
+                                    <a href="{% url 'wishlist' %}" class="cart-icon" style="margin-right: 15px;">
                                         <i class="fa-regular fa-heart"></i>
                                     </a>
-                                    <a href="{% url 'shop-cart' %}" class="cart-icon">
+                                    <a href="{% url 'shop-cart' %}" class="cart-icon" style="margin-right: 15px;">
                                         <i class="fa-regular fa-cart-shopping"></i>
                                     </a>
-                                    <div class="header-humbager ml-30">
+                                    <div class="header-humbager">
                                         <a class="sidebar__toggle" href="javascript:void(0)">
                                             <div class="bar-icon-2">
                                                 <img src="{% static 'img/icon/icon-13.svg' %}" alt="img">
@@ -297,11 +268,10 @@
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
     <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
@@ -457,7 +427,7 @@
                             <img src="{% static 'img/hero/bg-shape2.png' %}" alt="shape-img">
                         </div>
                         <div class="hero-content">
-                            <h1 class="wow fadeInUp" data-wow-delay=".5s">Get Your New Book <br> With The Best Price
+                            <h1 class="wow fadeInUp" data-wow-delay=".5s">Get Your New Gatgets <br> With The Best Price
                             </h1>
                             <div class="form-clt wow fadeInUp" data-wow-delay=".9s">
                                <a href="{% url 'shop-list' %}" style="text-decoration: none;">
@@ -552,92 +522,95 @@
     </style>
 
     <div class="container">
-        <div class="section-title-area">
-            <div class="section-title">
-                <!-- <h2 class="wow fadeInUp" data-wow-delay=".3s">Featured Books</h2> -->
-            </div>
-            <a href="{% static 'shop.html' %}" class="theme-btn transparent-btn wow fadeInUp" data-wow-delay=".5s">Explore More <i
-                    class="fa-solid fa-arrow-right-long"></i></a>
+    <div class="section-title-area">
+        <div class="section-title">
         </div>
-        <div class="swiper book-slider">
-            <div class="swiper-wrapper">
+        <a href="{% url 'shop-list' %}" class="theme-btn transparent-btn wow fadeInUp" data-wow-delay=".5s">
+            Explore More <i class="fa-solid fa-arrow-right-long"></i>
+        </a>
+    </div>
+    <div class="swiper book-slider">
+        <div class="swiper-wrapper">
 
-                {% for product in products %}
-                <div class="swiper-slide">
-                    <div class="shop-box-items style-2">
-                        <div class="book-thumb center">
-                            <a href="{% url 'product_detail' product.id %}">
-                                {% if product.main_image %}
-                                    <img src="{{ product.main_image.url }}" alt="img">
-                                {% else %}
-                                    <img src="{% static 'img/default.jpg' %}" alt="img">
-                                {% endif %}
-                            </a>
+            {% for product in products %}
+            <div class="swiper-slide">
+                <div class="shop-box-items style-2">
+                    <div class="book-thumb center">
+                        <a href="{% url 'product-detail' product.id %}">
+                            {% if product.main_image %}
+                                <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                            {% else %}
+                                <img src="{% static 'img/default.jpg' %}" alt="img">
+                            {% endif %}
+                        </a>
 
-                            <!-- 30x30 yozuvlar (Hot / -30%) olib tashlandi -->
-
-                            <ul class="shop-icon d-grid justify-content-center align-items-center">
-                                <li>
-                                    <a href="{% static 'shop-cart.html' %}"><i class="far fa-heart"></i></a>
-                                </li>
-                                <li>
-                                    <a href="{% static 'shop-cart.html' %}">
-                                        <img class="icon" src="{% static 'img/icon/shuffle.svg' %}" alt="svg-icon">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{% url 'product_detail' product.id %}"><i class="far fa-eye"></i></a>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="shop-content">
-                            <h5>{{ product.category.title }}</h5>
-                            <h3>
-                                <a href="{% url 'product_detail' product.id %}">
-                                    {{ product.title }}
+                        <ul class="shop-icon d-grid justify-content-center align-items-center">
+                            <li>
+                                <a href="{% url 'add_to_wishlist' product.id %}">
+                                    <i class="far fa-heart"></i>
                                 </a>
-                            </h3>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)">
+                                    <img class="icon" src="{% static 'img/icon/shuffle.svg' %}" alt="svg-icon">
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'product-detail' product.id %}"><i class="far fa-eye"></i></a>
+                            </li>
+                        </ul>
+                    </div>
 
-                            <ul class="price-list">
-                                <li>
-                                    ${{ product.discount_price|default:product.price }}
-                                </li>
-                                {% if product.discount_price %}
-                                <li>
-                                    <del>${{ product.price }}</del>
-                                </li>
-                                {% endif %}
-                            </ul>
+                    <div class="shop-content">
+                        <h5>{{ product.category.title }}</h5>
+                        <h3>
+                            <a href="{% url 'product-detail' product.id %}">
+                                {{ product.title }}
+                            </a>
+                        </h3>
 
-                            <ul class="author-post">
-                                <li class="authot-list">
-                                    <span class="thumb">
-                                        <img src="{% static 'img/testimonial/client-1.png' %}" alt="img">
-                                    </span>
-                                    <span class="content">{{ product.brand }}</span>
-                                </li>
-                                <li class="star">
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-regular fa-star"></i>
-                                </li>
-                            </ul>
+                        <div class="stock-info" style="margin-bottom: 5px;">
+                            {% if product.stock > 0 %}
+                                <span style="color: green; font-size: 13px;">Zaxirada: {{ product.stock }} ta</span>
+                            {% else %}
+                                <span style="color: red; font-size: 13px;">Tugagan</span>
+                            {% endif %}
                         </div>
 
-                        <div class="shop-button">
-                            <a href="{% url 'product_detail' product.id %}" class="theme-btn"><i
-                                    class="fa-solid fa-basket-shopping"></i> Add To Cart</a>
-                        </div>
+                        <ul class="price-list">
+                            <li>
+                                ${{ product.discount_price|default:product.price }}
+                            </li>
+                            {% if product.discount_price %}
+                            <li>
+                                <del>${{ product.price }}</del>
+                            </li>
+                            {% endif %}
+                        </ul>
+
+                        <ul class="author-post">
+                            <li class="authot-list">
+                                <span class="thumb">
+                                    <img src="{% static 'img/testimonial/client-1.png' %}" alt="img">
+                                </span>
+                                <span class="content">{{ product.brand }}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="shop-button">
+                        <a href="{% url 'product-detail' product.id %}" class="theme-btn">
+                            <i class="fa-solid fa-basket-shopping"></i> Add To Cart
+                        </a>
                     </div>
                 </div>
-                {% endfor %}
-
             </div>
+            {% endfor %}
+
         </div>
     </div>
+</div>
+
 </section>
 
 

@@ -9,7 +9,7 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.views.generic import ListView
 
-from .models import User, EmailVerify, Cart, Order, OrderItem, WishList
+from .models import User, EmailVerify, Cart, Order, OrderItem, WishList, Comment, Message
 from products.models import Product, Category 
 
 class RegisterView(View):
@@ -129,7 +129,7 @@ def checkout(request):
     request.user.save()
     cart_items.delete()
     messages.success(request, "Xarid muvaffaqiyatli yakunlandi!")
-    return redirect('home')
+    return redirect('checkout')
 
 class ShopCartView(View):
     def get(self, request):
@@ -177,8 +177,19 @@ class ShopListView(ListView):
     model = Product
     template_name = 'shop-list.html'
     context_object_name = 'products'
+
     def get_queryset(self):
-        return self.model.objects.all().order_by('-id')
+        # 1. Dastlab barcha mahsulotlarni oxirgi qo'shilgan tartibda olamiz
+        queryset = super().get_queryset().order_by('-id')
+        
+        # 2. URL'dan 'q' parametrini qidiramiz (masalan: /shop/?q=kitob)
+        query = self.request.GET.get('q')
+        
+        if query:
+            # 3. Agar so'rov bo'lsa, title bo'yicha filtrlaymiz
+            queryset = queryset.filter(title__icontains=query)
+            
+        return queryset
 
 def profile_view(request):
     if not request.user.is_authenticated:
@@ -221,3 +232,106 @@ def product_update(request, id):
         product.save()
         return redirect('profile')
     return render(request, 'product_form.html', {'product': product, 'categories': categories})
+
+def product_detail(request, id):
+    product = get_object_or_404(Product, id=id)
+    return render(request, 'product-detail.html', {'product': product})
+
+def add_comment(request, product_id):
+    if request.method == "POST":
+        product = get_object_or_404(Product, id=product_id)
+        text = request.POST.get('comment_text')
+        is_private = request.POST.get('is_private')
+        
+        comment = Comment.objects.create(
+            product=product,
+            user=request.user,
+            text=text,
+            is_public=False if is_private else True
+        )
+
+        # AGAR SHAXSIY BO'LSA, CHATGA XABAR YUBORISH
+        if is_private:
+            Message.objects.create(
+                sender=request.user,
+                receiver=product.author, # Mahsulot egasiga boradi
+                text=f"Yangi shaxsiy izoh: {text}"
+            )
+            
+        return redirect('shop-list')
+    
+
+from django.db.models import Q
+from django.http import JsonResponse
+
+# 1. Chatlar ro'yxati (Kim bilan yozishgan bo'lsa o'shalar chiqadi)
+def chat_list(request):
+    messages = Message.objects.filter(Q(sender=request.user) | Q(receiver=request.user))
+    chat_users = set()
+    for msg in messages:
+        chat_users.add(msg.receiver if msg.sender == request.user else msg.sender)
+    return render(request, 'chat_list.html', {'chat_users': chat_users})
+
+# 2. Ma'lum bir odam bilan chat sahifasi
+def chat_detail(request, user_id):
+    other_user = get_object_or_404(User, id=user_id)
+    messages = Message.objects.filter(
+        (Q(sender=request.user) & Q(receiver=other_user)) | 
+        (Q(sender=other_user) & Q(receiver=request.user))
+    )
+    return render(request, 'chat_detail.html', {'other_user': other_user, 'messages': messages})
+
+# 3. Xabar yuborish (AJAX orqali)
+def send_message(request):
+    if request.method == "POST":
+        receiver_id = request.POST.get('receiver_id')
+        text = request.POST.get('text')
+        receiver = get_object_or_404(User, id=receiver_id)
+        
+        # Bu yerda Message modelini aniq ko'rsatamiz
+        msg = Message.objects.create(
+            sender=request.user, 
+            receiver=receiver, 
+            text=text
+        )
+        return JsonResponse({
+            'status': 'ok', 
+            'text': msg.text, 
+            'sender': msg.sender.username
+        })
+    
+# Komentariyani o'chirish
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    # Faqat izoh egasi o'chira olishi uchun
+    if comment.user == request.user:
+        comment.delete()
+    return redirect('shop-list')
+
+# Komentariyani tahrirlash (Update)
+def update_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.method == "POST" and comment.user == request.user:
+        comment.text = request.POST.get('comment_text')
+        comment.save()
+    return redirect('shop-list')
+
+def add_to_wishlist(request, product_id):
+    # 1. Agar foydalanuvchi tizimga kirmagan bo'lsa
+    if not request.user.is_authenticated:
+        return redirect('login')  # 'login' - sizdagi login url nomi bo'lishi kerak
+
+    # 2. Agar foydalanuvchi kirgan bo'lsa
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Mahsulotni wishlistga qo'shish (agar allaqachon bo'lsa, shunchaki get qiladi)
+    WishList.objects.get_or_create(user=request.user, product=product)
+    
+    # Kelgan sahifasiga qaytarish
+    return redirect(request.META.get('HTTP_REFERER', 'wishlist'))
+
+def remove_from_wishlist(request, item_id):
+    # WishList modelidan ID bo'yicha topib o'chiramiz
+    wishlist_item = get_object_or_404(WishList, id=item_id, user=request.user)
+    wishlist_item.delete()
+    return redirect('wishlist')

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - {{ other_user.username }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .chat-container { max-width: 800px; margin: 30px auto; }
+        .card { height: 85vh; border-radius: 15px; display: flex; flex-direction: column; }
+        .card-header { background: white; border-bottom: 1px solid #eaeaea; border-radius: 15px 15px 0 0 !important; }
+        
+        /* Chat maydoni */
+        #chat-box { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px; 
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* WhatsApp orqa foni kabi */
+            background-color: #e5ddd5;
+        }
+
+        /* Xabarlar dizayni */
+        .message { margin-bottom: 15px; max-width: 75%; padding: 10px 15px; border-radius: 15px; position: relative; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .sent { background-color: #dcf8c6; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 2px; }
+        .received { background-color: #ffffff; align-self: flex-start; margin-right: auto; border-bottom-left-radius: 2px; }
+        
+        .message-time { font-size: 10px; color: #888; margin-top: 5px; text-align: right; }
+        
+        /* Input qismi */
+        .card-footer { background: white; border-top: 1px solid #eaeaea; padding: 15px; border-radius: 0 0 15px 15px !important; }
+        .input-group input { border-radius: 25px; padding: 10px 20px; background: #f0f2f5; border: none; }
+        .send-btn { background: #ff5e14; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; transition: 0.3s; }
+        .send-btn:hover { background: #e04d0d; transform: scale(1.05); }
+
+        /* Scrollbar */
+        #chat-box::-webkit-scrollbar { width: 6px; }
+        #chat-box::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container chat-container">
+    <div class="card shadow">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <a href="{% url 'chat-list' %}" class="btn btn-sm btn-light rounded-circle me-3">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h6 class="mb-0 fw-bold">{{ other_user.username }}</h6>
+                    <small class="text-success" style="font-size: 11px;"><i class="fa-solid fa-circle"></i> Online</small>
+                </div>
+            </div>
+            <div class="dropdown">
+                <i class="fa-solid fa-ellipsis-vertical cursor-pointer text-muted" data-bs-toggle="dropdown"></i>
+            </div>
+        </div>
+
+        <div id="chat-box" class="d-flex flex-column">
+            {% for msg in messages %}
+                <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                    {{ msg.text }}
+                    <div class="message-time">{{ msg.created_at|date:"H:i" }}</div>
+                </div>
+            {% empty %}
+                <div class="text-center mt-5">
+                    <span class="badge bg-secondary p-2 opacity-50">Hali xabarlar yo'q</span>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="card-footer">
+            <form id="chat-form" class="input-group">
+                {% csrf_token %}
+                <input type="hidden" id="receiver_id" value="{{ other_user.id }}">
+                <input type="text" id="msg-text" class="form-control me-2" placeholder="Xabarni shu yerga yozing..." required autocomplete="off">
+                <button type="submit" class="send-btn">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const msgInput = document.getElementById('msg-text');
+
+    // Chatni doim eng pastga tushirib qo'yish
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    scrollToBottom();
+
+    // Xabar yuborish
+    chatForm.onsubmit = function(e) {
+        e.preventDefault();
+        const text = msgInput.value.trim();
+        const receiver_id = document.getElementById('receiver_id').value;
+
+        if (!text) return;
+
+        fetch("/send-message/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `text=${encodeURIComponent(text)}&receiver_id=${receiver_id}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                const now = new Date();
+                const time = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+                
+                // Xabarni ekranga qo'shish
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message sent';
+                msgDiv.innerHTML = `${text}<div class="message-time">${time}</div>`;
+                chatBox.appendChild(msgDiv);
+                
+                msgInput.value = '';
+                scrollToBottom();
+            }
+        });
+    };
+
+    // Har 5 soniyada yangi xabarlarni tekshirish (Sahifani qisman yangilash mantiqi)
+    // Hozircha oddiygina reload qilib turamiz, muloqot to'xtab qolmasligi uchun
+    setInterval(function() {
+        // location.reload(); 
+    }, 15000);
+</script>
+
+</body>
+</html>

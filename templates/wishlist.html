@@ -226,13 +226,14 @@
                                                     <ul class="submenu">
                                                         <!-- <li><a href="shop.html">Shop Default</a></li> -->
                                                         <li><a href="{% url 'shop-list' %}">Shop List</a></li>
+                                                        <li><a href="{% url 'shop-list' %}">Comments</a></li>
+
                                                         <li><a href="{% url 'shop-cart' %}">Shop Cart</a></li>
                                                         <li><a href="{% url 'wishlist' %}">Wishlist</a></li>
-                                                        <li><a href="{% url 'checkout' %}">Checkout</a></li>
+                                                        <li><a href="{% url 'home' %}">Checkout</a></li>
                                                     </ul>
                                                 </li>
                                                 <li class="has-dropdown">
-                                                    <a href="contact.html">Contact</a>
                                                 </li>
                                             </ul>
                                         </nav>
@@ -459,6 +460,7 @@
     </div>
 
     <!-- Shop Cart Section Start -->
+    {% load static %}
 <div class="cart-section section-padding">
     <div class="container">
         <div class="main-cart-wrapper">
@@ -480,14 +482,22 @@
                                 <tr>
                                     <td>
                                         <span class="d-flex gap-5 align-items-center">
-                                            <a href="{% url 'wishlist' %}" class="remove-icon">
-                                                <img src="{% static 'img/icon/icon-9.svg' %}" alt="img">
+                                            <a href="{% url 'remove_from_wishlist' item.id %}" class="remove-icon">
+                                                <img src="{% static 'img/icon/icon-9.svg' %}" alt="remove">
                                             </a>
+                                            
                                             <span class="cart">
-                                                <img src="{{ item.product.image.url }}" alt="img" width="60">
+                                                {% if item.product.main_image %}
+                                                    <img src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}" width="60">
+                                                {% else %}
+                                                    <img src="{% static 'img/default.jpg' %}" alt="no-img" width="60">
+                                                {% endif %}
                                             </span>
+                                            
                                             <span class="cart-title">
-                                                {{ item.product.title }}
+                                                <a href="{% url 'product-detail' item.product.id %}">
+                                                    {{ item.product.title }}
+                                                </a>
                                             </span>
                                         </span>
                                     </td>
@@ -498,15 +508,21 @@
                                     </td>
                                     <td>
                                         {% if item.product.stock > 0 %}
-                                            <span class="stock-title">In Stock</span>
+                                            <span class="stock-title" style="color: green;">In Stock</span>
                                         {% else %}
-                                            <span class="stock-title-two">Out Of Stock</span>
+                                            <span class="stock-title-two" style="color: red;">Out Of Stock</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         <span class="subtotal-price">
-                                            ${{ item.product.price }}
+                                            ${{ item.product.discount_price|default:item.product.price }}
                                         </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        <p style="padding: 20px;">Sizning wishlist bo'sh.</p>
                                     </td>
                                 </tr>
                                 {% endfor %}
