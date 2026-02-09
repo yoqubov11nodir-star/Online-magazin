@@ -74,3 +74,4 @@ class AddToCartView(LoginRequiredMixin, View):
             cart_item.save()
         
         return redirect('cart') # Qo'shgandan keyin savat sahifasiga o'tadi
+    

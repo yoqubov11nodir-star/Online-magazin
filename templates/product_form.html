@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if product %}Tahrirlash{% else %}Yangi mahsulot{% endif %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{% if product %}Mahsulotni tahrirlash{% else %}Yangi mahsulot qo'shish{% endif %}</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Mahsulot nomi</label>
+                            <input type="text" name="title" class="form-control" value="{{ product.title }}" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Narxi ($)</label>
+                                <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Soni (Stock)</label>
+                                <input type="number" name="stock" class="form-control" value="{{ product.stock }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Chegirma foizi (%)</label>
+                                <input type="number" name="percent" class="form-control" value="{{ product.percent|default:0 }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Chegirma narxi (Discount price)</label>
+                                <input type="number" step="0.01" name="discount" class="form-control" value="{{ product.discount|default:0 }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Kategoriya</label>
+                            <select name="category" class="form-select" required>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>
+                                        {{ cat.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Asosiy rasm</label>
+                            <input type="file" name="image" class="form-control" {% if not product %}required{% endif %}>
+                            {% if product.main_image %}
+                                <div class="mt-2 text-muted small">Hozirgi rasm: {{ product.main_image.name }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between pt-3">
+                            <a href="{% url 'profile' %}" class="btn btn-secondary">Bekor qilish</a>
+                            <button type="submit" class="btn btn-success px-5">Saqlash</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
