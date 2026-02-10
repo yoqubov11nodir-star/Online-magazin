@@ -8,14 +8,14 @@ urlpatterns = [
     path('email-verify/', views.EmailVerifyView.as_view(), name='email_verify'),
     path('', views.LoginView.as_view(), name='login'), 
 
-    # Profile & Products
+    # Profile and Products
     path('profile/', views.profile_view, name='profile'),
     path('profile/add/', views.product_add, name='product_add'),
     path('profile/update/<int:id>/', views.product_update, name='product_update'),
     path('profile/delete/<int:id>/', views.product_delete, name='product_delete'),
     
-    # Shop & Wishlist
-    path('wishlist/', views.WishListView.as_view(), name='wishlist'), # BU QATORNI QO'SHING
+    # Shop and Wishlist
+    path('wishlist/', views.WishListView.as_view(), name='wishlist'),
     path('shop-list/', views.ShopListView.as_view(), name='shop-list'),
     path('shop-cart/', views.ShopCartView.as_view(), name='shop-cart'),
     path('add-to-wishlist/<int:product_id>/', views.add_to_wishlist, name='add_to_wishlist'),
@@ -34,6 +34,7 @@ urlpatterns = [
     path('delete-comment/<int:comment_id>/', views.delete_comment, name='delete_comment'),
     path('update-comment/<int:comment_id>/', views.update_comment, name='update_comment'),
 
+    # Chat
     path('chats/', views.chat_list, name='chat-list'),
     path('chat/<int:user_id>/', views.chat_detail, name='chat-detail'),
     path('send-message/', views.send_message, name='send-message'),

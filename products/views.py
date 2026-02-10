@@ -51,7 +51,6 @@ class ProductDetailView(View):
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-# Savatni ko'rish
 class CartView(LoginRequiredMixin, View):
     def get(self, request):
         cart_items = Cart.objects.filter(user=request.user)
@@ -61,7 +60,6 @@ class CartView(LoginRequiredMixin, View):
             'total_price': total_price
         })
 
-# Savatga qo'shish
 class AddToCartView(LoginRequiredMixin, View):
     def get(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
@@ -73,5 +71,5 @@ class AddToCartView(LoginRequiredMixin, View):
             cart_item.quantity += 1
             cart_item.save()
         
-        return redirect('cart') # Qo'shgandan keyin savat sahifasiga o'tadi
+        return redirect('cart')
     

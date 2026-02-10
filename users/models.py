@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.conf import settings
 
-# from django.contrib.auth.models import User # Foydalanuvchini ulash
+# from django.contrib.auth.models import User 
 
 
 from products.models import Product
@@ -60,7 +60,6 @@ class Cart(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        # Narxni aniqlash: Agar chegirma bo'lsa discount_price, bo'lmasa oddiy price
         if self.product.discount_price and self.product.precent > 0:
             current_price = self.product.discount_price
         else:
@@ -96,4 +95,4 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['created_at'] # Xabarlar vaqt bo'yicha tartiblanadi
+        ordering = ['created_at']
