@@ -257,7 +257,7 @@ def add_comment(request, product_id):
         text = request.POST.get('comment_text')
         is_private = request.POST.get('is_private')
         
-        comment = Comment.objects.create(
+        Comment.objects.create(
             product=product,
             user=request.user,
             text=text,
@@ -268,11 +268,11 @@ def add_comment(request, product_id):
             Message.objects.create(
                 sender=request.user,
                 receiver=product.author,
-                text=f"Yangi shaxsiy izoh: {text}"
+                text=f"Yangi shaxsiy izoh ({product.title}): {text}"
             )
             
-        return redirect('product-detail')
-    
+        return redirect('product-detail', id=product.id)
+    return redirect('shop-list')
 
 from django.db.models import Q
 from django.http import JsonResponse
@@ -311,9 +311,12 @@ def send_message(request):
     
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
+    product_id = comment.product.id
+    
     if comment.user == request.user:
         comment.delete()
-    return redirect('shop-list')
+    
+    return redirect('product-detail', id=product_id)
 
 def update_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id, user=request.user)
@@ -322,7 +325,6 @@ def update_comment(request, comment_id):
         if new_text:
             comment.text = new_text
             comment.save()
-        return redirect('product-detail', id=comment.product.id)
     
     return redirect('product-detail', id=comment.product.id)
 
