@@ -89,7 +89,7 @@ class LoginView(View):
             if user:
                 login(request, user)
                 # MANA SHU YERNI O'ZGARTIRDIK:
-                return redirect('home') # Login bo'lgach do'kon sahifasiga o'tadi
+                return redirect('shop-list') # Login bo'lgach do'kon sahifasiga o'tadi
             else:
                 return render(request, 'auth/login.html', {"error": "Parol noto'g'ri"})
         else:
@@ -107,29 +107,53 @@ def add_to_cart(request, id):
     return redirect('shop-cart')
 
 def checkout(request):
+    # Agar foydalanuvchi kirmagan bo'lsa login sahifasiga
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     cart_items = Cart.objects.filter(user=request.user)
+    
+    # Savatcha bo'sh bo'lsa shopga qaytarish
     if not cart_items:
-        return redirect('home')
+        messages.info(request, "Savatchangiz bo'sh")
+        return redirect('shop-list')
+
     total_price = sum(item.total_price for item in cart_items)
     balance = request.user.balance if request.user.balance else Decimal('0.00')
+
+    # Mablag' tekshiruvi
     if balance < total_price:
         messages.error(request, "Mablag' yetarli emas!")
         return redirect('shop-cart')
+
+    # Ombor tekshiruvi
     for item in cart_items:
         if item.product.stock < item.quantity:
-            messages.error(request, f"{item.product.title} yetarli emas!")
+            messages.error(request, f"{item.product.title} mahsulotidan omborda yetarli emas!")
             return redirect('shop-cart')
+
+    # Buyurtma yaratish
     order = Order.objects.create(user=request.user)
     for item in cart_items:
         product = item.product
         product.stock -= item.quantity
         product.save()
-        OrderItem.objects.create(order=order, product=product, quantity=item.quantity, price=product.price)
+        OrderItem.objects.create(
+            order=order, 
+            product=product, 
+            quantity=item.quantity, 
+            price=product.price
+        )
+
+    # Balansdan ayirish
     request.user.balance -= total_price
     request.user.save()
+
+    # Savatchani tozalash
     cart_items.delete()
+    
     messages.success(request, "Xarid muvaffaqiyatli yakunlandi!")
-    return redirect('checkout')
+    return redirect('shop-list') # Xarid tugagach shop-listga qaytadi
 
 class ShopCartView(View):
     def get(self, request):
@@ -258,7 +282,7 @@ def add_comment(request, product_id):
                 text=f"Yangi shaxsiy izoh: {text}"
             )
             
-        return redirect('shop-list')
+        return redirect('product-detail')
     
 
 from django.db.models import Q
@@ -310,11 +334,17 @@ def delete_comment(request, comment_id):
 
 # Komentariyani tahrirlash (Update)
 def update_comment(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)
-    if request.method == "POST" and comment.user == request.user:
-        comment.text = request.POST.get('comment_text')
-        comment.save()
-    return redirect('shop-list')
+    comment = get_object_or_404(Comment, id=comment_id, user=request.user)
+    if request.method == "POST":
+        new_text = request.POST.get('comment_text')
+        if new_text:
+            comment.text = new_text
+            comment.save()
+        # Qat'iy ravishda product-detail ga qaytarish
+        return redirect('product-detail', id=comment.product.id)
+    
+    # Agar GET bo'lsa ham (aslida modalda GET kerak emas), detail sahifasiga qaytadi
+    return redirect('product-detail', id=comment.product.id)
 
 def add_to_wishlist(request, product_id):
     # 1. Agar foydalanuvchi tizimga kirmagan bo'lsa

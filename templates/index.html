@@ -220,10 +220,16 @@
                                             <li>
                                                 <a href="{% url 'shop-list' %}">Shop <i class="fas fa-angle-down"></i></a>
                                                 <ul class="submenu">
-                                                    <li><a href="{% url 'shop-list' %}">Shop List</a></li>
+                                                    <li><a href="{% url 'shop-list' %}">Shop List</a></li>                                                            
                                                     <li><a href="{% url 'shop-cart' %}">Shop Cart</a></li>
                                                     <li><a href="{% url 'wishlist' %}">Wishlist</a></li>
-                                                    <li><a href="{% url 'checkout' %}">Checkout</a></li>
+                                                    <li>
+                                                        {% if request.user.is_authenticated %}
+                                                            <a href="{% url 'login' %}">Checkout</a>
+                                                        {% else %}
+                                                            <a href="{% url 'login' %}">Checkout</a>
+                                                        {% endif %}
+                                                    </li>    
 
                                                 </ul>
                                             </li>
@@ -521,95 +527,115 @@
 
     </style>
 
-    <div class="container">
-    <div class="section-title-area">
-        <div class="section-title">
+    <!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>{{ product.title|default:"Shop" }}</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+    <style>
+        .comment-card { border-radius: 10px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
+        .public-comment { border-left: 5px solid #0d6efd; background-color: #f8f9fa; }
+        .private-comment { border-left: 5px solid #ffc107; background-color: #fff9e6; }
+        .product-img { max-height: 400px; object-fit: contain; }
+        .comment-actions { font-size: 0.85rem; }
+    </style>
+</head>
+
+<body>
+ 
+
+    <div class="container py-5">
+        <div class="section-title-area">
+            <a href="{% url 'shop-list' %}" class="theme-btn transparent-btn wow fadeInUp" data-wow-delay=".5s">
+                Explore More <i class="fa-solid fa-arrow-right-long"></i>
+            </a>
         </div>
-        <a href="{% url 'shop-list' %}" class="theme-btn transparent-btn wow fadeInUp" data-wow-delay=".5s">
-            Explore More <i class="fa-solid fa-arrow-right-long"></i>
-        </a>
-    </div>
-    <div class="swiper book-slider">
-        <div class="swiper-wrapper">
 
-            {% for product in products %}
-            <div class="swiper-slide">
-                <div class="shop-box-items style-2">
-                    <div class="book-thumb center">
-                        <a href="{% url 'product-detail' product.id %}">
-                            {% if product.main_image %}
-                                <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
-                            {% else %}
-                                <img src="{% static 'img/default.jpg' %}" alt="img">
-                            {% endif %}
-                        </a>
-
-                        <ul class="shop-icon d-grid justify-content-center align-items-center">
-                            <li>
-                                <a href="{% url 'add_to_wishlist' product.id %}">
-                                    <i class="far fa-heart"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript:void(0)">
-                                    <img class="icon" src="{% static 'img/icon/shuffle.svg' %}" alt="svg-icon">
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'product-detail' product.id %}"><i class="far fa-eye"></i></a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="shop-content">
-                        <h5>{{ product.category.title }}</h5>
-                        <h3>
+        <div class="swiper book-slider">
+            <div class="swiper-wrapper">
+                {% for product in products %}
+                <div class="swiper-slide">
+                    <div class="shop-box-items style-2">
+                        <div class="book-thumb center">
                             <a href="{% url 'product-detail' product.id %}">
-                                {{ product.title }}
+                                {% if product.main_image %}
+                                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                                {% else %}
+                                    <img src="{% static 'img/default.jpg' %}" alt="img">
+                                {% endif %}
                             </a>
-                        </h3>
 
-                        <div class="stock-info" style="margin-bottom: 5px;">
-                            {% if product.stock > 0 %}
-                                <span style="color: green; font-size: 13px;">Zaxirada: {{ product.stock }} ta</span>
-                            {% else %}
-                                <span style="color: red; font-size: 13px;">Tugagan</span>
-                            {% endif %}
+                            <ul class="shop-icon d-grid justify-content-center align-items-center">
+                                <li>
+                                    <a href="{% url 'add_to_wishlist' product.id %}">
+                                        <i class="far fa-heart"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)">
+                                        <img class="icon" src="{% static 'img/icon/shuffle.svg' %}" alt="svg-icon">
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'product-detail' product.id %}"><i class="far fa-eye"></i></a>
+                                </li>
+                            </ul>
                         </div>
 
-                        <ul class="price-list">
-                            <li>
-                                ${{ product.discount_price|default:product.price }}
-                            </li>
-                            {% if product.discount_price %}
-                            <li>
-                                <del>${{ product.price }}</del>
-                            </li>
-                            {% endif %}
-                        </ul>
+                        <div class="shop-content">
+                            <h5>{{ product.category.title }}</h5>
+                            <h3>
+                                <a href="{% url 'product-detail' product.id %}">{{ product.title }}</a>
+                            </h3>
 
-                        <ul class="author-post">
-                            <li class="authot-list">
-                                <span class="thumb">
-                                    <img src="{% static 'img/testimonial/client-1.png' %}" alt="img">
-                                </span>
-                                <span class="content">{{ product.brand }}</span>
-                            </li>
-                        </ul>
-                    </div>
+                            <div class="stock-info" style="margin-bottom: 5px;">
+                                {% if product.stock > 0 %}
+                                    <span style="color: green; font-size: 13px;">Zaxirada: {{ product.stock }} ta</span>
+                                {% else %}
+                                    <span style="color: red; font-size: 13px;">Tugagan</span>
+                                {% endif %}
+                            </div>
 
-                    <div class="shop-button">
-                        <a href="{% url 'product-detail' product.id %}" class="theme-btn">
-                            <i class="fa-solid fa-basket-shopping"></i> Add To Cart
-                        </a>
+                            <ul class="price-list">
+                                <li>${{ product.discount_price|default:product.price }}</li>
+                                {% if product.discount_price %}
+                                <li><del>${{ product.price }}</del></li>
+                                {% endif %}
+                            </ul>
+
+                            <ul class="author-post">
+                                <li class="authot-list">
+                                    <span class="thumb">
+                                        <img src="{% static 'img/testimonial/client-1.png' %}" alt="img">
+                                    </span>
+                                    <span class="content">{{ product.brand }}</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="shop-button">
+                            <a href="{% url 'add_to_cart' product.id %}" class="theme-btn">
+                                <i class="fa-solid fa-basket-shopping"></i> Add To Cart
+                            </a>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-
         </div>
     </div>
-</div>
+
+    {% if product %}
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        </div>
+    {% endif %}
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
 
 </section>
 

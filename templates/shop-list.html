@@ -171,11 +171,11 @@
                 <ul class="contact-list">
                     <li>
                         <i class="fa-regular fa-phone"></i>
-                        <a href="tel:+20866660112">+208-6666-0112</a>
+                        <a href="tel:+20866660112">+998-93-102-58-56</a>
                     </li>
                     <li>
                         <i class="far fa-envelope"></i>
-                        <a href="mailto:info@example.com">info@example.com</a>
+                        <a href="mailto:info@example.com">yoqubov11nodir@gmail.com</a>
                     </li>
                     <li>
                         <i class="far fa-clock"></i>
@@ -226,13 +226,12 @@
                                                     <ul class="submenu">
                                                         <!-- <li><a href="shop.html">Shop Default</a></li> -->
                                                         <li><a href="{% url 'shop-list' %}">Shop List</a></li>
-                                                        <li><a href="{% url 'shop-list' %}">Comments</a></li>
                                                         <!-- <li><a href="shop-details.html">Shop Details</a></li> -->
                                                         <li><a href="{% url 'shop-cart' %}">Shop Cart</a></li>
                                                         <li><a href="{% url 'wishlist' %}">Wishlist</a></li>
-                                                        <li><a href="{% url 'checkout' %}">Checkout</a></li>
+                                                        <li><a href="{% url 'home' %}">Checkout</a></li>
                                                     </ul>
-                                                </li>
+                                                </li>   
                                                 <li class="has-dropdown">
                                              
                                                 </li>
@@ -242,7 +241,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6 col-md-6 col-lg-2 col-xl-4 col-xxl-2">
+                        <!-- <div class="col-6 col-md-6 col-lg-2 col-xl-4 col-xxl-2">
                             <div class="header-right">
                                 <div class="category-oneadjust gap-6 d-flex align-items-center">
                                     <div class="icon">
@@ -290,7 +289,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 
@@ -461,6 +460,7 @@
     </div>
 
     <!-- Shop Section Start -->
+
     {% load static %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -504,7 +504,7 @@
                                     {% endif %}
                                 </div>
                                 <div class="shop-list-content">
-                                    <h3><a href="{% url 'product_detail' product.id %}">{{ product.title }}</a></h3>
+                                    <h3><a href="{% url 'product-detail' product.id %}">{{ product.title }}</a></h3>
                                     <h5 style="font-size: 22px; margin-top: 10px;">${{ product.price }}</h5>
                                     <div class="star" style="margin: 10px 0;">
                                         <i class="fa-solid fa-star"></i>
@@ -518,57 +518,10 @@
                                         {{ product.description|truncatechars:180 }}
                                     </p>
 
-                                    <div class="comments-container" style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                                        <h6 style="font-size: 14px; color: #333;">Izohlar:</h6>
-                                        <div class="comment-scroll" style="max-height: 100px; overflow-y: auto;">
-                                            {% for comment in product.comments.all %}
-                                                {% if comment.is_public or request.user == product.author or request.user == comment.user %}
-                                                    <div style="font-size: 13px; border-bottom: 1px solid #eee; padding: 5px 0; display: flex; justify-content: space-between; align-items: center;">
-                                                        <div style="flex: 1; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                                                            <strong>{{ comment.user.username }}</strong>: 
-                                                            <span id="text-{{ comment.id }}">{{ comment.text }}</span>
-                                                            
-                                                            <div id="edit-form-{{ comment.id }}" style="display: none; width: 100%;">
-                                                                <div style="display: flex; gap: 5px; margin-top: 5px;">
-                                                                    <input type="text" id="input-{{ comment.id }}" value="{{ comment.text }}" style="flex: 1; font-size: 12px; padding: 2px 5px;">
-                                                                    <button onclick="saveEdit('{{ comment.id }}')" style="background: #28a745; color: white; border: none; padding: 0 8px; cursor: pointer; border-radius: 3px;">Save</button>
-                                                                    <button onclick="cancelEdit('{{ comment.id }}')" style="background: #6c757d; color: white; border: none; padding: 0 8px; cursor: pointer; border-radius: 3px;">X</button>
-                                                                </div>
-                                                            </div>
-
-                                                            {% if not comment.is_public %}
-                                                                <small style="color: orange;">(Shaxsiy)</small>
-                                                            {% endif %}
-                                                        </div>
-
-                                                        {% if comment.user == request.user %}
-                                                        <div id="actions-{{ comment.id }}" style="display: flex; align-items: center; gap: 12px; margin-left: 10px;">
-                                                            <i class="fa-solid fa-pen-to-square" onclick="showEdit('{{ comment.id }}')" style="cursor: pointer; color: #007bff; font-size: 14px;"></i>
-                                                            <a href="{% url 'delete_comment' comment.id %}" onclick="return confirm('Oʻchirmoqchimisiz?')" style="color: #dc3545; display: flex; align-items: center;">
-                                                                <i class="fa-solid fa-trash-can" style="font-size: 14px;"></i>
-                                                            </a>
-                                                        </div>
-                                                        {% endif %}
-                                                    </div>
-                                                {% endif %}
-                                            {% empty %}
-                                                <small style="color: #999;">Hali izoh yo'q.</small>
-                                            {% endfor %}
-                                        </div>
-                                        
-                                        {% if request.user.is_authenticated %}
-                                        <form action="{% url 'add_comment' product.id %}" method="POST" style="margin-top: 10px;">
-                                            {% csrf_token %}
-                                            <div style="display: flex; gap: 5px;">
-                                                <input type="text" name="comment_text" placeholder="Izoh..." required style="flex-grow: 1; border: 1px solid #ddd; padding: 2px 10px; border-radius: 3px; font-size: 13px;">
-                                                <button type="submit" style="background: #ff5e14; color: white; border: none; padding: 2px 10px; border-radius: 3px; cursor: pointer;">OK</button>
-                                            </div>
-                                            <div style="font-size: 11px; margin-top: 3px;">
-                                                <input type="checkbox" name="is_private" id="priv{{ product.id }}"> 
-                                                <label for="priv{{ product.id }}">Faqat sotuvchiga ko'rinsin</label>
-                                            </div>
-                                        </form>
-                                        {% endif %}
+                                    <div class="comments-btn-wrapper" style="margin-bottom: 20px;">
+                                        <a href="{% url 'product-detail' product.id %}" class="theme-btn transparent-btn" style="padding: 8px 20px; font-size: 14px; text-transform: capitalize; border: 1px solid #ddd;">
+                                            <i class="fa-regular fa-comments" style="margin-right: 8px;"></i> Comments ({{ product.comments.count }})
+                                        </a>
                                     </div>
 
                                     <div class="shop-btn">
@@ -581,9 +534,9 @@
                                         </form>
                                         
                                         <ul class="shop-icon d-flex justify-content-center align-items-center">
-                                            <li><a href="{% url 'wishlist' %}"><i class="far fa-heart"></i></a></li>
+                                            <li><a href="{% url 'add_to_wishlist' product.id %}"><i class="far fa-heart"></i></a></li>
                                             <li><a href="{% url 'shop-cart' %}"><img class="icon" src="{% static 'img/icon/shuffle.svg' %}" alt="svg-icon"></a></li>
-                                            <li><a href="{% url 'product_detail' product.id %}"><i class="far fa-eye"></i></a></li>
+                                            <li><a href="{% url 'product-detail' product.id %}"><i class="far fa-eye"></i></a></li>
                                         </ul>
                                     </div>
                                 </div>
